@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crop Recommendation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --soil-900:#2b2117;
+      --soil-800:#3e2f22;
+      --soil-700:#5a4632;
+      --leaf-600:#4c7a52;
+      --leaf-500:#6a9c63;
+      --wheat-100:#f6efdf;
+      --wheat-200:#eee2c4;
+      --clay-500:#bc6c39;
+      --sky-500:#4e7f95;
+      --danger:#b3492f;
+      --radius-lg:22px;
+      --radius-md:14px;
+      --shadow-soft:0 18px 40px -20px rgba(43,33,23,.45);
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      background:
+        radial-gradient(ellipse 900px 500px at 10% -10%, rgba(106,156,99,.25), transparent 60%),
+        radial-gradient(ellipse 700px 500px at 100% 0%, rgba(188,108,57,.18), transparent 55%),
+        var(--wheat-100);
+      font-family:'Work Sans', sans-serif;
+      color:var(--soil-900);
+      min-height:100vh;
+    }
+
+    h1{
+      color:var(--soil-900);
+      text-align:center;
+    }
+
+    .warning{
+      color:red;
+      font-weight:bold;
+      text-align:center;
+    }
+
+    /* ---------- Navbar ---------- */
+    .navbar{
+      background:var(--soil-900) !important;
+      border-bottom:3px solid var(--leaf-500);
+    }
+    .navbar-brand{
+      font-family:'Fraunces', serif;
+      font-weight:600;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:.55rem;
+    }
+    .navbar-brand .brand-mark{
+      display:inline-flex;
+      width:30px;height:30px;
+      border-radius:8px;
+      background:var(--leaf-500);
+      align-items:center;
+      justify-content:center;
+      font-size:1rem;
+    }
+
+    /* ---------- Hero ---------- */
+    .hero-wrap{
+      max-width:960px;
+      margin:0 auto;
+      padding:2.75rem 1rem 0;
+      text-align:center;
+    }
+    .hero-eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      background:var(--soil-900);
+      color:var(--wheat-100);
+      font-size:.72rem;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      padding:.4rem .9rem;
+      border-radius:999px;
+      font-weight:600;
+    }
+    .hero-eyebrow .dot{
+      width:7px;height:7px;border-radius:50%;
+      background:var(--leaf-500);
+      box-shadow:0 0 0 4px rgba(106,156,99,.35);
+    }
+    h1.headline{
+      font-family:'Fraunces', serif;
+      font-weight:700;
+      font-size:clamp(2.1rem, 4.2vw, 3rem);
+      margin:1rem 0 .4rem;
+      color:var(--soil-900) !important;
+    }
+    h1.headline .accent{ color:var(--leaf-600) !important; }
+    .subhead{
+      color:var(--soil-700);
+      max-width:560px;
+      margin:0 auto 1.75rem;
+      font-size:1.02rem;
+    }
+
+    /* ---------- Layout container ---------- */
+    .container.field-shell{
+      max-width:960px;
+    }
+
+    .container{
+      background:var(--wheat-100);
+      font-weight:normal;
+      padding:2rem 2rem 1.75rem;
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-soft);
+      border:1px solid rgba(43,33,23,.06);
+    }
+
+    /* ---------- Progress meter (signature element) ---------- */
+    .meter-row{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin-bottom:1.75rem;
+      padding:.9rem 1.1rem;
+      background:var(--soil-900);
+      border-radius:var(--radius-md);
+      color:var(--wheat-100);
+    }
+    .meter-track{
+      flex:1;
+      height:8px;
+      border-radius:999px;
+      background:rgba(246,239,223,.18);
+      overflow:hidden;
+    }
+    .meter-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, var(--leaf-600), var(--leaf-500));
+      border-radius:999px;
+      transition:width .35s ease;
+    }
+    .meter-label{
+      font-size:.8rem;
+      letter-spacing:.04em;
+      white-space:nowrap;
+      font-variant-numeric:tabular-nums;
+      color:var(--wheat-200);
+    }
+    .meter-sprout{
+      font-size:1.15rem;
+      transition:transform .35s ease;
+    }
+
+    /* ---------- Field groups ---------- */
+    .field-section-title{
+      font-family:'Fraunces', serif;
+      font-weight:600;
+      font-size:.95rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--leaf-600);
+      margin:0 0 .75rem;
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+    }
+    .field-section-title::before{
+      content:"";
+      width:18px;height:2px;
+      background:var(--clay-500);
+      display:inline-block;
+    }
+
+    .field-card{
+      background:#fff;
+      border:1px solid rgba(43,33,23,.08);
+      border-radius:var(--radius-md);
+      padding:1rem 1.1rem .85rem;
+      height:100%;
+      transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+      position:relative;
+    }
+    .field-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 24px -14px rgba(43,33,23,.35);
+    }
+    .field-card.is-filled{
+      border-color:var(--leaf-500);
+    }
+    .field-card label{
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+      font-weight:600;
+      font-size:.88rem;
+      color:var(--soil-800);
+      margin-bottom:.35rem;
+    }
+    .field-icon{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:26px;height:26px;
+      border-radius:8px;
+      font-size:.78rem;
+      font-weight:700;
+      background:var(--wheat-200);
+      color:var(--soil-800);
+      flex:none;
+    }
+    .field-unit{
+      margin-left:auto;
+      font-size:.72rem;
+      font-weight:500;
+      color:var(--soil-700);
+      opacity:.75;
+    }
+
+    .form-control{
+      border:1.5px solid rgba(43,33,23,.14);
+      border-radius:10px;
+      padding:.55rem .7rem;
+      font-weight:500;
+    }
+    .form-control:focus{
+      border-color:var(--leaf-500);
+      box-shadow:0 0 0 .18rem rgba(106,156,99,.25);
+    }
+
+    input[type="range"].field-slider{
+      width:100%;
+      margin-top:.55rem;
+      accent-color:var(--leaf-600);
+      cursor:pointer;
+    }
+
+    /* ---------- Submit ---------- */
+    .submit-row{
+      margin-top:1.9rem;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:.6rem;
+    }
+    .btn-primary{
+      background:var(--leaf-600);
+      border-color:var(--leaf-600);
+      font-weight:600;
+      padding:.7rem 2.4rem;
+      border-radius:999px;
+      letter-spacing:.02em;
+      box-shadow:0 12px 24px -10px rgba(76,122,82,.55);
+      transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .btn-primary:hover{
+      background:var(--leaf-500);
+      border-color:var(--leaf-500);
+      transform:translateY(-1px);
+    }
+    .btn-primary:disabled{
+      opacity:.55;
+      transform:none;
+      box-shadow:none;
+    }
+    .submit-hint{
+      font-size:.78rem;
+      color:var(--soil-700);
+      opacity:.8;
+    }
+
+    /* ---------- Result card ---------- */
+    .card{
+      margin:2rem auto 0;
+      max-width:22rem;
+      display:flex;
+      flex-direction:row;
+      align-items:center;
+      color:rgb(241, 239, 240);
+      border-radius:var(--radius-md);
+      overflow:hidden;
+      animation:riseIn .5s ease both;
+      border:none;
+      background:var(--soil-900) !important;
+    }
+    @keyframes riseIn{
+      from{opacity:0; transform:translateY(14px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+    .card .card-img-top{
+      padding:.75rem;
+      background:var(--leaf-500);
+      border-radius:14px;
+      margin:.75rem;
+    }
+    .card-title{
+      font-family:'Fraunces', serif;
+      font-size:.95rem;
+      font-weight:600;
+      color:var(--wheat-200) !important;
+      margin-bottom:.15rem;
+    }
+    .card-text{
+      font-size:1.25rem;
+      font-weight:700;
+      color:#fff !important;
+      text-transform:capitalize;
+      margin-bottom:0;
+    }
+
+    footer.credit{
+      text-align:center;
+      font-size:.75rem;
+      color:var(--soil-700);
+      opacity:.7;
+      padding:1.5rem 0 2rem;
+    }
+  </style>
+
+
+  <body>
+  <!--=======================navbar=====================================================-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <span class="brand-mark">🌾</span>
+      Crop Recommendation System Using Machine Learning
+    </a>
+  </div>
+</nav>
+
+<!--==========================================================================================-->
+
+  <div class="hero-wrap">
+    <span class="hero-eyebrow"><span class="dot"></span>Soil &amp; Climate Analyzer</span>
+    <h1 class="headline">Find the right crop for <span class="accent">your field</span></h1>
+    <p class="subhead">Enter your soil nutrients and local climate readings below. The model matches them against known growing conditions to suggest the best crop to plant.</p>
+  </div>
+
+  <div class="container my-3 mt-3 field-shell">
+
+      <div class="meter-row">
+        <span class="meter-sprout" id="meterSprout">🌱</span>
+        <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+        <span class="meter-label" id="meterLabel">0 / 7 fields</span>
+      </div>
+
+<!--      adding form-->
+      <form action="/predict" method="POST" id="cropForm">
+
+          <p class="field-section-title">Soil nutrients (mg/kg)</p>
+          <div class="row g-3">
+              <div class="col-md-4">
+                <div class="field-card" data-field-card="Nitrogen">
+					<label for="Nitrogen"><span class="field-icon">N</span>Nitrogen<span class="field-unit">mg/kg</span></label>
+					<input type="number" id="Nitrogen" name="Nitrogen" placeholder="Enter Nitrogen" class="form-control" required step="0" min="0" max="140">
+					<input type="range" class="field-slider" min="0" max="140" step="1" value="0" data-sync="Nitrogen" aria-hidden="true" tabindex="-1">
+				</div>
+               </div>
+               <div class="col-md-4">
+                <div class="field-card" data-field-card="Phosporus">
+					<label for="Phosporus"><span class="field-icon">P</span>Phosphorus<span class="field-unit">mg/kg</span></label>
+					<input type="number" id="Phosporus" name="Phosporus" placeholder="Enter Phosphorus" class="form-control" required step="00" min="0" max="145">
+					<input type="range" class="field-slider" min="0" max="145" step="1" value="0" data-sync="Phosporus" aria-hidden="true" tabindex="-1">
+				</div>
+				</div>
+				<div class="col-md-4">
+                <div class="field-card" data-field-card="Potassium">
+					<label for="Potassium"><span class="field-icon">K</span>Potassium<span class="field-unit">mg/kg</span></label>
+					<input type="number" id="Potassium" name="Potassium" placeholder="Enter Potassium" class="form-control" required step="0" min="0" max="205">
+					<input type="range" class="field-slider" min="0" max="205" step="1" value="0" data-sync="Potassium" aria-hidden="true" tabindex="-1">
+				</div>
+				</div>
+          </div>
+
+          <p class="field-section-title mt-4">Climate conditions</p>
+          <div class="row g-3">
+				<div class="col-md-4">
+                <div class="field-card" data-field-card="Temperature">
+					<label for="Temperature"><span class="field-icon">🌡️</span>Temperature<span class="field-unit">°C</span></label>
+					<input type="number" step="0.01" id="Temperature" name="Temperature" placeholder="Enter Temperature in °C" class="form-control" required>
+				</div>
+				</div>
+				<div class="col-md-4">
+                <div class="field-card" data-field-card="Humidity">
+					<label for="Humidity"><span class="field-icon">💧</span>Humidity<span class="field-unit">%</span></label>
+					<input type="number" step="0.01" id="Humidity" name="Humidity" placeholder="Enter Humidity in %" class="form-control" required min="0" max="100">
+				</div>
+				</div>
+				<div class="col-md-4">
+                <div class="field-card" data-field-card="pH">
+					<label for="pH"><span class="field-icon">⚗️</span>pH<span class="field-unit">0–14</span></label>
+					<input type="number" step="0.01" id="pH" name="pH" placeholder="Enter pH value" class="form-control" required min="0" max="14">
+				</div>
+				</div>
+			</div>
+
+          <div class="row g-3 mt-1">
+				<div class="col-md-4">
+                <div class="field-card" data-field-card="Rainfall">
+					<label for="Rainfall"><span class="field-icon">🌧️</span>Rainfall<span class="field-unit">mm</span></label>
+					<input type="number" step="0.01" id="Rainfall" name="Rainfall" placeholder="Enter Rainfall in mm" class="form-control" required>
+				</div>
+				</div>
+			</div>
+
+           <div class="submit-row">
+				<button type="submit" class="btn btn-primary btn-lg" id="submitBtn">Get Recommendation</button>
+				<span class="submit-hint" id="submitHint">Fill in all 7 fields to enable analysis</span>
+			</div>
+      </form>
+
+       {% if result %}
+		<div class="card bg-dark" style="width: 18rem;">
+		  <img src="{{url_for('static', filename='crop.png')}}" style="width: 70px; height: 70px;" class="card-img-top" alt="...">
+		  <div class="card-body">
+			<h5 class="card-title">Recommend Crop for Cultivation is:</h5>
+			<p class="card-text">{{ result }} </p>
+		  </div>
+		</div>
+	   {% endif %}
+  </div>
+
+  <footer class="credit">Crop Recommendation System · powered by machine learning</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <script>
+      (function(){
+        var ids = ["Nitrogen","Phosporus","Potassium","Temperature","Humidity","pH","Rainfall"];
+        var fill = document.getElementById('meterFill');
+        var label = document.getElementById('meterLabel');
+        var sprout = document.getElementById('meterSprout');
+        var submitBtn = document.getElementById('submitBtn');
+        var submitHint = document.getElementById('submitHint');
+        var sprouts = ["🌱","🌱","🌿","🌿","🪴","🪴","🌾"];
+
+        function update(){
+          var filled = 0;
+          ids.forEach(function(id){
+            var el = document.getElementById(id);
+            var card = document.querySelector('[data-field-card="'+id+'"]');
+            var has = el && el.value !== "";
+            if(has) filled++;
+            if(card){ card.classList.toggle('is-filled', !!has); }
+          });
+          var pct = Math.round((filled/ids.length)*100);
+          fill.style.width = pct + '%';
+          label.textContent = filled + ' / ' + ids.length + ' fields';
+          sprout.textContent = sprouts[Math.min(filled, sprouts.length-1)];
+          var complete = filled === ids.length;
+          submitBtn.disabled = !complete;
+          submitHint.textContent = complete ? "All set — ready to analyze" : "Fill in all 7 fields to enable analysis";
+        }
+
+        ids.forEach(function(id){
+          var el = document.getElementById(id);
+          if(el){ el.addEventListener('input', update); }
+        });
+
+        // keep the visual sliders in sync with N/P/K number inputs (cosmetic only, not submitted)
+        document.querySelectorAll('[data-sync]').forEach(function(slider){
+          var targetId = slider.getAttribute('data-sync');
+          var target = document.getElementById(targetId);
+          if(!target) return;
+          slider.addEventListener('input', function(){
+            target.value = slider.value;
+            update();
+          });
+          target.addEventListener('input', function(){
+            var v = parseFloat(target.value);
+            if(!isNaN(v)){ slider.value = v; }
+          });
+        });
+
+        update();
+
+        var form = document.getElementById('cropForm');
+        if(form){
+          form.addEventListener('submit', function(){
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Analyzing…';
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
