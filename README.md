@@ -1,6 +1,6 @@
 # 🌾 Crop Recommendation System
 
-A machine learning web application that recommends the most suitable crop to cultivate based on soil nutrient levels and climate conditions. Built with Flask and scikit-learn.
+A machine learning web application that recommends the most suitable crop to cultivate based on soil nutrient levels and climate conditions. Built with Streamlit and scikit-learn.
 
 ## Overview
 
@@ -8,33 +8,29 @@ Given seven input parameters — Nitrogen, Phosphorus, Potassium, Temperature, H
 
 ## Features
 
-- Simple, responsive web interface for entering soil and climate data
-- Trained classification model served via a Flask backend
+- Simple, interactive web interface for entering soil and climate data
+- Trained `RandomForestClassifier` model served via a Streamlit app
 - Feature scaling pipeline (MinMaxScaler + StandardScaler) applied before prediction
 - Instant crop recommendation displayed on the same page
+- Model and scalers cached with `st.cache_resource` for fast repeated predictions
 
 ## Tech Stack
 
-- **Backend:** Python, Flask
+- **App framework:** Python, Streamlit
 - **Machine Learning:** scikit-learn, pandas, numpy
 - **Model exploration:** Jupyter Notebook (`Crop_Recommendation_Using_Machine_Learning.ipynb`)
-- **Frontend:** HTML, CSS (`templates/index.html`)
 
 ## Project Structure
 
 ```
-├── app.py                                          # Flask application
-├── model.pkl                                       # Trained classification model
+├── app.py                                          # Streamlit application
+├── model.pkl                                       # Trained RandomForestClassifier model
 ├── standscaler.pkl                                 # Fitted StandardScaler
 ├── minmaxscaler.pkl                                # Fitted MinMaxScaler
-├── templates/
-│   └── index.html                                  # Web interface
 ├── Crop_Recommendation_Using_Machine_Learning.ipynb # Model training notebook
 ├── requirements.txt
 └── README.md
 ```
-
-> **Note:** Place `index.html` inside a `templates/` folder, as required by Flask's `render_template`.
 
 ## Input Parameters
 
@@ -76,17 +72,17 @@ Rice, Maize, Jute, Cotton, Coconut, Papaya, Orange, Apple, Muskmelon, Watermelon
 
 ## Usage
 
-1. Start the Flask server:
+1. Start the Streamlit app:
    ```bash
-   python app.py
+   streamlit run app.py
    ```
 
-2. Open your browser and navigate to:
+2. Your browser should open automatically at:
    ```
-   http://127.0.0.1:5000/
+   http://localhost:8501
    ```
 
-3. Enter the soil nutrient and climate values in the form and click **Predict** to get a crop recommendation.
+3. Enter the soil nutrient and climate values in the form and click **🔍 Predict Best Crop** to get a recommendation.
 
 ## Model Training
 
@@ -94,7 +90,7 @@ The notebook `Crop_Recommendation_Using_Machine_Learning.ipynb` covers:
 - Exploratory data analysis (distribution plots, correlation heatmap)
 - Feature scaling with `MinMaxScaler` and `StandardScaler`
 - Training and comparing multiple classifiers (Logistic Regression, Naive Bayes, SVM, KNN, Decision Tree, Random Forest, Bagging, Gradient Boosting, AdaBoost)
-- Selecting the best-performing model and exporting it along with the fitted scalers using `pickle`
+- Selecting `RandomForestClassifier` as the best-performing model and exporting it along with the fitted scalers using `pickle`
 
 ## Future Improvements
 
@@ -102,7 +98,7 @@ The notebook `Crop_Recommendation_Using_Machine_Learning.ipynb` covers:
 - Display model confidence/probability alongside the prediction
 - Containerize the app with Docker for easier deployment
 - Add unit tests for the prediction pipeline
+- Re-fit `mx`/`sc` scalers with `.transform()` instead of `.fit_transform()` at inference time in the notebook's `recommendation()` helper, so scaling parameters aren't refit on single-sample inputs
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
